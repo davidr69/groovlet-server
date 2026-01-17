@@ -1,0 +1,140 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: serverless-config-init
+  namespace: serverless
+data:
+  VAULT_REQUEST: |
+    {
+      "vault_request": [{
+        "path": "lavacro/data/prod/database/postgresql",
+        "items": [{
+          "key": "password",
+          "label": "spring.datasource.password"
+        }]
+      },{
+        "path": "lavacro/data/prod/gcl",
+        "items": [{
+          "key": "authentication",
+          "label": "google.cloud.logging"
+        }]
+      },{
+        "path": "lavacro/data/prod/github",
+        "items": [{
+          "key": "token",
+          "label": "github.token"
+        }]
+      }],
+      "mount_path": "/var/tmp/vault/vault.properties"
+    }
+  MOUNT_PATH: "/var/tmp/vault"
+  SPRING_CLOUD_VAULT_AUTHENTICATION: "APPROLE"
+  SPRING_CLOUD_VAULT_URI: "http://vault.lavacro.net:8201"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: serverless-config-app
+  namespace: serverless
+data:
+  SPRING_DATASOURCE_USERNAME: "david"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://prod-db.lavacro.net:5432/songs?reWriteBatchedInserts=true"
+  SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/var/tmp/vault/vault.properties"
+  GOOGLE_CLOUD_PROJECT: "lavacro"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serverless-app
+  labels:
+    app: serverless
+    tier: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: web
+  template:
+    metadata:
+      labels:
+        app: serverless
+        tier: web
+    spec:
+      volumes:
+      - name: vault-token
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1Mi
+      initContainers:
+      - name: vault-retrieve
+        image: "registry:5000/vault-retrieve:4.0.4"
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: serverless-config-init
+        - secretRef:
+            name: serverless-secrets
+        volumeMounts:
+        - name: vault-token
+          mountPath: "/var/tmp/vault"
+      containers:
+      - name: serverless
+        image: "registry:5000/serverless:2.1.2"
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: serverless-config-app
+        volumeMounts:
+        - name: vault-token
+          mountPath: "/var/tmp/vault"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "384Mi"
+            cpu: "500m" # 0.5 CPU
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          timeoutSeconds: 60
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          timeoutSeconds: 3
+          initialDelaySeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: serverless-service
+spec:
+  selector:
+    app: serverless
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: serverless-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: serverless.cloud.lavacro.net
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: serverless-service
+            port:
+              number: 80

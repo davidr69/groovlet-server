@@ -1,0 +1,41 @@
+server:
+  session:
+    timeout: 300
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,mappings
+    health:
+      enabled: true
+    info:
+      enabled: true
+    mappings:
+      enabled: true
+
+github:
+  api-version: 2022-11-28
+  url: https://api.github.com
+  branch: main
+  owner: davidr69
+  repo: api_access
+
+kafka:
+  bootstrap-servers: "kafka.lavacro.net:9092"
+  consumer-group: "serverless-consumer-group"
+  topic: "serverless-topic"
+  app-header: "serverless-app-name"
+  params-header: "serverless-params"
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: groovletCP
+      connection-test-query: SELECT 1
+      minimum-idle: 3
+      maximum-pool-size: 20
+      idle-timeout: 10000
+    url: jdbc:postgresql://prod-db.lavacro.net:5432/songs?reWriteBatchedInserts=true

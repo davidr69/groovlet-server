@@ -1,0 +1,88 @@
+plugins {
+	id 'java'
+	id 'groovy'
+	id 'org.springframework.boot' version "${springBootVersion}"
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+repositories {
+    mavenLocal()
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+	}
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	// add spring-kafka dependency
+	implementation 'org.springframework.kafka:spring-kafka:3.3.10'
+
+	implementation 'io.undertow:undertow-servlet'
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
+
+	implementation 'org.apache.groovy:groovy-all:5.0.2'
+	implementation 'org.yaml:snakeyaml:2.2'
+//	implementation 'io.micrometer:micrometer-registry-prometheus:1.12.6'
+
+	// provide these services
+	implementation 'com.google.cloud:google-cloud-logging:3.23.10'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.postgresql:postgresql:42.7.3'
+
+	implementation 'org.springframework.retry:spring-retry:2.0.11'
+	implementation 'org.springframework:spring-aspects'
+
+	implementation 'com.google.guava:guava:32.1.2-jre'
+
+//	implementation('io.micrometer:micrometer-tracing-bridge-otel') {
+//		exclude group: 'io.opentelemetry'
+//		exclude group: 'io.opentelemetry.semconv'
+//	}
+
+	// Explicitly bring in the newer OTel stack
+//	implementation platform("io.opentelemetry:opentelemetry-bom:1.51.0")
+
+//	implementation "io.opentelemetry:opentelemetry-api"
+//	implementation "io.opentelemetry:opentelemetry-sdk"
+//	implementation "io.opentelemetry:opentelemetry-sdk-trace"
+//	implementation "io.opentelemetry:opentelemetry-sdk-common"
+//	implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
+
+	compileOnly 'org.projectlombok:lombok:1.18.42'
+
+	annotationProcessor 'org.projectlombok:lombok:1.18.42'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'junit:junit:4.13.2'
+	testImplementation 'org.projectlombok:lombok:1.18.42'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
+}
+
+group = 'net.lavacro.serverless'
+version = '2.1.2'
+description = 'Groovy-based serverless platform'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+	options.encoding = 'UTF-8'
+}
