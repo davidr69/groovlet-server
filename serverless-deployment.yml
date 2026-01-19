@@ -8,19 +8,22 @@ data:
   VAULT_REQUEST: |
     {
       "vault_request": [{
-        "path": "lavacro/data/prod/database/postgresql",
+        "mount": "lavacro",
+        "path": "prod/database/postgresql",
         "items": [{
           "key": "password",
           "label": "spring.datasource.password"
         }]
       },{
-        "path": "lavacro/data/prod/gcl",
+        "mount": "lavacro",
+        "path": "lavacro/prod/gcl",
         "items": [{
           "key": "authentication",
           "label": "google.cloud.logging"
         }]
       },{
-        "path": "lavacro/data/prod/github",
+        "mount": "lavacro",
+        "path": "lavacro/prod/github",
         "items": [{
           "key": "token",
           "label": "github.token"
@@ -68,7 +71,7 @@ spec:
           sizeLimit: 1Mi
       initContainers:
       - name: vault-retrieve
-        image: "registry:5000/vault-retrieve:4.0.4"
+        image: "registry:5000/govault:1.0.0"
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
