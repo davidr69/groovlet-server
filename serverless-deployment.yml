@@ -16,20 +16,20 @@ data:
         }]
       },{
         "mount": "lavacro",
-        "path": "lavacro/prod/gcl",
+        "path": "prod/gcl",
         "items": [{
           "key": "authentication",
           "label": "google.cloud.logging"
         }]
       },{
         "mount": "lavacro",
-        "path": "lavacro/prod/github",
+        "path": "prod/github",
         "items": [{
           "key": "token",
           "label": "github.token"
         }]
       }],
-      "mount_path": "/var/tmp/vault/vault.properties"
+      "file_path": "/var/tmp/vault/vault.properties"
     }
   MOUNT_PATH: "/var/tmp/vault"
   SPRING_CLOUD_VAULT_AUTHENTICATION: "APPROLE"
@@ -42,7 +42,7 @@ metadata:
   namespace: serverless
 data:
   SPRING_DATASOURCE_USERNAME: "david"
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://prod-db.lavacro.net:5432/songs?reWriteBatchedInserts=true"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://prod-db.lavacro.net:5432/serverless?reWriteBatchedInserts=true"
   SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/var/tmp/vault/vault.properties"
   GOOGLE_CLOUD_PROJECT: "lavacro"
 ---
