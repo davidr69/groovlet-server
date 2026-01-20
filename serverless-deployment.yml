@@ -32,8 +32,7 @@ data:
       "file_path": "/var/tmp/vault/vault.properties"
     }
   MOUNT_PATH: "/var/tmp/vault"
-  SPRING_CLOUD_VAULT_AUTHENTICATION: "APPROLE"
-  SPRING_CLOUD_VAULT_URI: "http://vault.lavacro.net:8201"
+  VAULT_ADDR: "http://vault.lavacro.net:8201"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -83,7 +82,7 @@ spec:
           mountPath: "/var/tmp/vault"
       containers:
       - name: serverless
-        image: "registry:5000/serverless:2.1.2"
+        image: "registry:5000/serverless:2.2.0"
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
