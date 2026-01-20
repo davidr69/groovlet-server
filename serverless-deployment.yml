@@ -8,29 +8,31 @@ data:
   VAULT_REQUEST: |
     {
       "vault_request": [{
-        "path": "lavacro/data/prod/database/postgresql",
+        "mount": "lavacro",
+        "path": "prod/database/postgresql",
         "items": [{
           "key": "password",
           "label": "spring.datasource.password"
         }]
       },{
-        "path": "lavacro/data/prod/gcl",
+        "mount": "lavacro",
+        "path": "prod/gcl",
         "items": [{
           "key": "authentication",
           "label": "google.cloud.logging"
         }]
       },{
-        "path": "lavacro/data/prod/github",
+        "mount": "lavacro",
+        "path": "prod/github",
         "items": [{
           "key": "token",
           "label": "github.token"
         }]
       }],
-      "mount_path": "/var/tmp/vault/vault.properties"
+      "file_path": "/var/tmp/vault/vault.properties"
     }
   MOUNT_PATH: "/var/tmp/vault"
-  SPRING_CLOUD_VAULT_AUTHENTICATION: "APPROLE"
-  SPRING_CLOUD_VAULT_URI: "http://vault.lavacro.net:8201"
+  VAULT_ADDR: "http://vault.lavacro.net:8201"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -39,7 +41,7 @@ metadata:
   namespace: serverless
 data:
   SPRING_DATASOURCE_USERNAME: "david"
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://prod-db.lavacro.net:5432/songs?reWriteBatchedInserts=true"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://prod-db.lavacro.net:5432/serverless?reWriteBatchedInserts=true"
   SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/var/tmp/vault/vault.properties"
   GOOGLE_CLOUD_PROJECT: "lavacro"
 ---
@@ -68,7 +70,7 @@ spec:
           sizeLimit: 1Mi
       initContainers:
       - name: vault-retrieve
-        image: "registry:5000/vault-retrieve:4.0.4"
+        image: "registry:5000/govault:1.0.0"
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
@@ -80,7 +82,7 @@ spec:
           mountPath: "/var/tmp/vault"
       containers:
       - name: serverless
-        image: "registry:5000/serverless:2.1.2"
+        image: "registry:5000/serverless:2.2.0"
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:

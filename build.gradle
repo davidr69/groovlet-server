@@ -70,7 +70,7 @@ dependencies {
 }
 
 group = 'net.lavacro.serverless'
-version = '2.1.2'
+version = '2.2.0'
 description = 'Groovy-based serverless platform'
 
 java {
