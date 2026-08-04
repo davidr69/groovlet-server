@@ -1,9 +1,8 @@
 package net.lavacro.serverless.utils;
 
-import com.networknt.schema.InputFormat;
+import com.networknt.schema.*;
+import com.networknt.schema.Error;
 import lombok.extern.slf4j.Slf4j;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
 
 import java.util.List;
 
@@ -12,18 +11,19 @@ public class JsonUtils {
 	public String schemaValidator(String jsonSchema, String jsonData) {
 		log.info("Validating data schema ...");
 
-		JsonSchemaFactory factory = JsonSchemaFactory.getInstance(
-				SpecVersion.VersionFlag.V202012,
-				builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build())
+		SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
+		SchemaRegistry registry = SchemaRegistry.withDefaultDialect(
+				SpecificationVersion.DRAFT_2020_12,
+				builder -> builder.schemaRegistryConfig(config)
 		);
-		SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-		JsonSchema schema = factory.getSchema(jsonSchema, InputFormat.JSON, config);
-		Set<ValidationMessage> messages = schema.validate(jsonData, InputFormat.JSON, executionContext ->
-			executionContext.getExecutionConfig().setFormatAssertionsEnabled(true)
-		);
-		List<ValidationMessage> messageList = messages.stream().toList();
+		SchemaLocation schemaLocation = SchemaLocation.of(jsonSchema);
+		Schema schema = registry.getSchema(schemaLocation);
 
-		List<String> errorMessages = messageList.stream().map(ValidationMessage::getMessage).toList();
+		List<Error> messageList = schema.validate(jsonData, InputFormat.JSON, executionContext ->
+			executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true))
+		);
+
+		List<String> errorMessages = messageList.stream().map(Error::getMessage).toList();
 		if(errorMessages.isEmpty()) {
 			return null;
 		}
