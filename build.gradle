@@ -46,6 +46,8 @@ dependencies {
 
 	implementation 'com.google.guava:guava:33.6.0-jre'
 
+	implementation 'net.openhft:zero-allocation-hashing:2026.0'
+
 //	implementation('io.micrometer:micrometer-tracing-bridge-otel') {
 //		exclude group: 'io.opentelemetry'
 //		exclude group: 'io.opentelemetry.semconv'

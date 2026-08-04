@@ -1,7 +1,5 @@
 package net.lavacro.serverless.stubs
 
-import net.lavacro.serverless.utils.GoogleLogger
-
 abstract class BaseGroovy {
 	Integer exitCode
 	String returnMessage
