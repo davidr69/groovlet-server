@@ -22,7 +22,7 @@ public class SyslogService {
 	private final LongTupleHashFunction xxh128 = LongTupleHashFunction.xx128();
 
 	public void log(Map<String, String> data) {
-		String str = String.format("%s|%s|%d|%d",
+		String str = String.format("%s|%s|%s|%s",
 				data.get("srcIp"), data.get("destIp"), data.get("destPort"), data.get("ipProtocol"));
 		long[] hash = xxh128.hashBytes(str.getBytes(StandardCharsets.UTF_8));
 
@@ -32,5 +32,7 @@ public class SyslogService {
 				.putLong(hash[0])
 				.putLong(hash[1])
 				.array();
+
+		log.info("Hash bytes: {}", hashBytes);
 	}
 }

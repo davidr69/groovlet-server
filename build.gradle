@@ -26,7 +26,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:5.0.2'
 
@@ -63,14 +63,14 @@ dependencies {
 //	implementation "io.opentelemetry:opentelemetry-sdk-common"
 //	implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
 
-	compileOnly 'org.projectlombok:lombok:1.18.42'
+	compileOnly 'org.projectlombok:lombok:1.18.46'
 
-	annotationProcessor 'org.projectlombok:lombok:1.18.42'
+	annotationProcessor 'org.projectlombok:lombok:1.18.46'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'junit:junit:4.13.2'
 	testImplementation 'org.projectlombok:lombok:1.18.42'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.46'
 }
 
 tasks.withType(JavaCompile).configureEach {
