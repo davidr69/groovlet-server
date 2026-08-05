@@ -8,7 +8,9 @@ import java.util.List;
 
 @Slf4j
 public class JsonUtils {
-	public String schemaValidator(String jsonSchema, String jsonData) {
+	private JsonUtils() { }
+
+	public static String schemaValidator(String jsonSchema, String jsonData) {
 		log.info("Validating data schema ...");
 
 		SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
