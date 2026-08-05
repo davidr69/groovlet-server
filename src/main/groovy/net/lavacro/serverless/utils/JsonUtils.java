@@ -3,6 +3,7 @@ package net.lavacro.serverless.utils;
 import com.networknt.schema.*;
 import com.networknt.schema.Error;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tools.ant.filters.StringInputStream;
 
 import java.util.List;
 
@@ -18,8 +19,7 @@ public class JsonUtils {
 				SpecificationVersion.DRAFT_2020_12,
 				builder -> builder.schemaRegistryConfig(config)
 		);
-		SchemaLocation schemaLocation = SchemaLocation.of(jsonSchema);
-		Schema schema = registry.getSchema(schemaLocation);
+		Schema schema = registry.getSchema(new StringInputStream(jsonSchema));
 
 		List<Error> messageList = schema.validate(jsonData, InputFormat.JSON, executionContext ->
 			executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true))
