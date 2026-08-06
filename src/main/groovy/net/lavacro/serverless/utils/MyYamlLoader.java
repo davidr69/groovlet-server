@@ -3,7 +3,10 @@ package net.lavacro.serverless.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +29,50 @@ public class MyYamlLoader {
 		} catch(Exception e) {
 			log.error("Unable to load YAML:", e);
 			return new HashMap<>();
+		}
+	}
+
+	public static<T> T yamlToObject(String str, Class<T> clazz) {
+		if(str == null || str.isBlank()) {
+			log.warn("yamlToObject: Empty YAML string");
+			return newObject(clazz);
+		}
+
+		Constructor constructor = getConstructor(clazz);
+
+		Yaml yaml = new Yaml(constructor);
+		try {
+			T obj = yaml.load(str);
+			log.info("YAML loaded");
+			return obj;
+		} catch(Exception e) {
+			log.error("Unable to load YAML:", e);
+			return newObject(clazz);
+		}
+	}
+
+	private static<T> Constructor getConstructor(Class<T> clazz) {
+		LoaderOptions options = new LoaderOptions();
+		Constructor constructor = new Constructor(clazz, options);
+		PropertyUtils propertyUtils = new PropertyUtils() {
+			@Override
+			public boolean isSkipMissingProperties() { return true; } // ignore missing properties
+
+			@Override
+			public boolean isAllowReadOnlyProperties() { return true; }
+		};
+
+		propertyUtils.setSkipMissingProperties(true);
+		constructor.setPropertyUtils(propertyUtils);
+		return constructor;
+	}
+
+	private static <T> /*@NotNull*/ T newObject(Class<T> clazz) {
+		try {
+			return clazz.getDeclaredConstructor().newInstance();
+		} catch(NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			log.error("Unable to create instance of class {}", clazz.getName());
+			return null;
 		}
 	}
 }
