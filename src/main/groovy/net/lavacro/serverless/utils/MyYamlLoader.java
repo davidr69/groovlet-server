@@ -5,6 +5,7 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
+import jakarta.validation.constraints.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public class MyYamlLoader {
 		}
 	}
 
-	private static<T> Constructor getConstructor(Class<T> clazz) {
+	private static<T> @NotNull Constructor getConstructor(Class<T> clazz) {
 		LoaderOptions options = new LoaderOptions();
 		Constructor constructor = new Constructor(clazz, options);
 		PropertyUtils propertyUtils = new PropertyUtils() {
@@ -67,7 +68,7 @@ public class MyYamlLoader {
 		return constructor;
 	}
 
-	private static <T> /*@NotNull*/ T newObject(Class<T> clazz) {
+	private static <T> @NotNull T newObject(Class<T> clazz) {
 		try {
 			return clazz.getDeclaredConstructor().newInstance();
 		} catch(NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
