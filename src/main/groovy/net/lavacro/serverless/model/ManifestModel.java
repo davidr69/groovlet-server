@@ -12,6 +12,7 @@ public class ManifestModel {
 
 	private String appFile;
 	private String configFile;
+	private String jsonMessageValidator;
 
 	private List<String> services;
 }

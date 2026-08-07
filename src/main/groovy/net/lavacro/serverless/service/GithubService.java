@@ -66,6 +66,7 @@ public class GithubService {
 		appData.setSource(appContent);
 		appData.setParams(new HashMap<>());
 		appData.setConfig(new HashMap<>());
+		appData.setJsonValidator(getJsonValidator(manifestModel, appPath, items));
 		return appData;
 	}
 
@@ -99,6 +100,26 @@ public class GithubService {
 	public String getBlob(FeignException e, String sha) {
 		log.info("Recovering in blob ... {}", e.getMessage());
 		return null;
+	}
+
+	private String getJsonValidator(ManifestModel manifestModel, String appPath, List<GitTreeItem> items) {
+		String jsonValidator = manifestModel.getJsonMessageValidator();
+		if(jsonValidator == null) {
+			return null;
+		}
+
+		Optional<GitTreeItem> validator = items.stream().filter(it -> it.getPath().equals(appPath + "/" + jsonValidator)).findFirst();
+		if(validator.isEmpty()) {
+			log.warn("json validator not found");
+			return null;
+		}
+
+		String validatorContent = getBlob(validator.get().getSha());
+		if(validatorContent == null) {
+			log.warn("json validator not found");
+			return null;
+		}
+		return validatorContent;
 	}
 }
 
