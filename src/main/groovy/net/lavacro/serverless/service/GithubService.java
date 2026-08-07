@@ -39,7 +39,7 @@ public class GithubService {
 				null,
 				githubConfig.getOwner(),
 				githubConfig.getRepo(),
-				"syslog-watcher",
+				appPath,
 				githubConfig.getBranch()
 		);
 
