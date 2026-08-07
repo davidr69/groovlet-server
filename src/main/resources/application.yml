@@ -14,7 +14,7 @@ management:
       probability: 1.0  # 100% of traces are sampled
 
 github:
-  api-version: 2022-11-28
+  api-version: 2026-03-10
   url: https://api.github.com
   branch: develop
   owner: davidr69
@@ -40,7 +40,7 @@ spring:
   kafka:
     bootstrap-servers: kafka.lavacro.net:9092
     consumer:
-      group-id: 'serverless-consumer-group'
+      group-id: 'serverless-consumer-group-test'
       auto-offset-reset: latest
       max-poll-records: 10
       enable-auto-commit: false

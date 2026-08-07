@@ -1,72 +1,71 @@
 package net.lavacro.serverless.service;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import feign.FeignException;
 
+import lombok.RequiredArgsConstructor;
 import net.lavacro.serverless.configuration.GithubConfig;
-import net.lavacro.serverless.model.AppData;
-import net.lavacro.serverless.model.GitBlob;
-import net.lavacro.serverless.model.GitTreeItem;
-import net.lavacro.serverless.model.GitTreeResponse;
+import net.lavacro.serverless.model.*;
 
-import org.springframework.cloud.openfeign.FeignClient;
+import net.lavacro.serverless.utils.MyYamlLoader;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class GithubService {
 	private final GithubIntf githubIntf;
 	private final GithubConfig githubConfig;
-
-	GithubService(GithubIntf githubIntf, GithubConfig githubConfig) {
-		this.githubIntf = githubIntf;
-		this.githubConfig = githubConfig;
-	}
 
 	@Retryable(
 			retryFor = {FeignException.class},
 			noRetryFor = {FeignException.Unauthorized.class},
 			backoff = @Backoff(delay = 1000, multiplier = 2)
 	)
-	public AppData stageApp(final String path) {
-		log.info("[{}] Get from github ...", path);
-		GitTreeResponse resp = githubIntf.tree(
+	public AppData stageApp(final String appPath) {
+		log.info("[{}] Get from github ...", appPath);
+
+		List<GitTreeItem> items = githubIntf.listDir(
 				githubConfig.getToken(),
 				null,
 				githubConfig.getOwner(),
 				githubConfig.getRepo(),
+				"syslog-watcher",
 				githubConfig.getBranch()
 		);
 
-		log.info("Found {} entries", resp.getTree().size());
+		Optional<GitTreeItem> manifest = items.stream().filter(it -> it.getPath().equals(appPath + "/manifest.yml")).findFirst();
+		if(manifest.isEmpty()) {
+			log.error("manifest not found");
+			return null;
+		}
 
-		List<GitTreeItem> dirList = resp.getTree().stream().filter(it -> it.getPath().startsWith(path + "/")).toList();
+		String manifestContent = getBlob(manifest.get().getSha());
+		ManifestModel manifestModel = MyYamlLoader.yamlToObject(manifestContent, ManifestModel.class);
 
-		log.info("Filtered down to {}", dirList.size());
+		log.info("Loaded manifest: {}", manifestModel);
+
+		Optional<GitTreeItem> app = items.stream().filter(it -> it.getPath().equals(appPath + "/" + manifestModel.getAppFile())).findFirst();
+		if(app.isEmpty()) {
+			log.error("app not found");
+			return null;
+		}
+
+		String appContent = getBlob(app.get().getSha());
 
 		AppData appData = new AppData();
-
-		for(GitTreeItem item: dirList) {
-			if(path.equals(item.getPath())) {
-				continue;
-			}
-
-			String filename = item.getPath().substring(path.length() + 1);
-			log.info("loading {} ...", filename);
-			if("app.groovy".equals(filename)) {
-				appData.setSource(getBlob(item.getSha()));
-				break;
-			}
-			log.info("{}", getBlob(item.getSha()));
-		}
+		appData.setSource(appContent);
+		appData.setParams(new HashMap<>());
+		appData.setConfig(new HashMap<>());
 		return appData;
 	}
 
@@ -101,28 +100,5 @@ public class GithubService {
 		log.info("Recovering in blob ... {}", e.getMessage());
 		return null;
 	}
-
 }
 
-@FeignClient(value = "github-api", url = "${github.url}")
-interface GithubIntf {
-	String API_VERSION = "2022-11-28";
-
-	@GetMapping(value = "/repos/{owner}/{repo}/git/trees/{branch}?recursive=1")
-	GitTreeResponse tree(
-			@RequestHeader("Authorization") final String auth,
-			@RequestHeader(value = "X-GitHub-Api-Version", defaultValue = API_VERSION, required = false) final String apiVersion,
-			@PathVariable(value = "owner") final String owner,
-			@PathVariable(value = "repo") final String repo,
-			@PathVariable(value = "branch") final String branch
-	);
-
-	@GetMapping(value = "/repos/{owner}/{repo}/git/blobs/{sha}")
-	GitBlob getBlob(
-			@RequestHeader("Authorization") final String auth,
-			@RequestHeader(value = "X-GitHub-Api-Version", defaultValue = API_VERSION, required = false) final String apiVersion,
-			@PathVariable(value = "owner") final String owner,
-			@PathVariable(value = "repo") final String repo,
-			@PathVariable(value = "sha") final String sha
-	);
-}
