@@ -5,45 +5,50 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
+group = 'net.lavacro.serverless'
+version = '3.0.0'
+description = 'Groovy-based serverless platform'
+
+def javaVersion = System.getProperty('os.arch') == 'aarch64' ? 26 : 25
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(javaVersion)
+	}
+}
+
 repositories {
     mavenLocal()
 	mavenCentral()
 }
 
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
-}
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
-	}
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	// add spring-kafka dependency
-	implementation 'org.springframework.kafka:spring-kafka:3.3.10'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 
-	implementation 'io.undertow:undertow-servlet'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:5.0.2'
 
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.1'
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
-
-	implementation 'org.apache.groovy:groovy-all:5.0.2'
-	implementation 'org.yaml:snakeyaml:2.2'
+	implementation 'org.apache.groovy:groovy-all:5.0.8'
+	implementation 'org.yaml:snakeyaml:2.6'
+	implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
 //	implementation 'io.micrometer:micrometer-registry-prometheus:1.12.6'
 
 	// provide these services
-	implementation 'com.google.cloud:google-cloud-logging:3.23.10'
+	implementation 'com.google.cloud:google-cloud-logging:3.36.0'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.postgresql:postgresql:42.7.3'
+	implementation 'org.postgresql:postgresql:42.7.7'
 
-	implementation 'org.springframework.retry:spring-retry:2.0.11'
+	implementation 'org.springframework.retry:spring-retry:2.0.13'
 	implementation 'org.springframework:spring-aspects'
 
-	implementation 'com.google.guava:guava:32.1.2-jre'
+	implementation 'com.google.guava:guava:33.6.0-jre'
+
+	implementation 'net.openhft:zero-allocation-hashing:2026.0'
+	implementation 'com.networknt:json-schema-validator:3.0.6'
 
 //	implementation('io.micrometer:micrometer-tracing-bridge-otel') {
 //		exclude group: 'io.opentelemetry'
@@ -59,24 +64,15 @@ dependencies {
 //	implementation "io.opentelemetry:opentelemetry-sdk-common"
 //	implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
 
-	compileOnly 'org.projectlombok:lombok:1.18.42'
+	compileOnly 'org.projectlombok:lombok:1.18.46'
+	compileOnly 'org.jetbrains:annotations:24.1.0'
 
-	annotationProcessor 'org.projectlombok:lombok:1.18.42'
+	annotationProcessor 'org.projectlombok:lombok:1.18.46'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'junit:junit:4.13.2'
 	testImplementation 'org.projectlombok:lombok:1.18.42'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
-}
-
-group = 'net.lavacro.serverless'
-version = '2.2.0'
-description = 'Groovy-based serverless platform'
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
-	}
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.46'
 }
 
 tasks.withType(JavaCompile).configureEach {
