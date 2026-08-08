@@ -13,7 +13,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 @Slf4j
 public class MainApp {
-	public static void main(String[] args) {
+	static void main(String[] args) {
 		SpringApplication.run(MainApp.class, args);
 	}
 }

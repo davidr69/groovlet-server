@@ -1,6 +1,8 @@
 package net.lavacro.serverless.engine;
 
+import groovy.json.JsonOutput;
 import net.lavacro.serverless.service.WorkflowService;
+import net.lavacro.serverless.utils.JsonUtils;
 import org.apache.kafka.common.header.Header;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -68,8 +70,18 @@ public class AppLauncher {
 				log.info("*** App {} already loaded", appName);
 			}
 
-			threads.submit(workflowService.doit(appName, message, new HashMap<>()));
+			String payload = JsonOutput.toJson(message);
+			String schema = WorkflowService.getAppMap().get(appName).getJsonValidator();
+			String validationProblems = null;
 
+			if(schema == null) {
+				validationProblems = JsonUtils.schemaValidator(schema, payload);
+			}
+			if(validationProblems == null) {
+				threads.submit(workflowService.doit(appName, message, new HashMap<>()));
+			} else {
+				log.error("Validation problems: {}", validationProblems);
+			}
 		} else {
 			log.info("Message is not for me");
 		}

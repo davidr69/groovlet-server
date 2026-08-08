@@ -16,6 +16,7 @@ public class AppData {
 	private Map<String,String> params;
 	private Map<String, Object> message; // Kafka payload
 	private String app;
+	private String jsonValidator;
 
 	// execution params
 	private GroovyShell shell;
