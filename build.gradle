@@ -65,6 +65,7 @@ dependencies {
 //	implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
 
 	compileOnly 'org.projectlombok:lombok:1.18.46'
+	compileOnly 'org.jetbrains:annotations:24.1.0'
 
 	annotationProcessor 'org.projectlombok:lombok:1.18.46'
 
