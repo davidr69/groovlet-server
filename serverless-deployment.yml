@@ -70,7 +70,7 @@ spec:
           sizeLimit: 1Mi
       initContainers:
       - name: vault-retrieve
-        image: "registry:5000/govault:1.0.2"
+        image: "registry:5000/govault:1.0.4"
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
@@ -82,7 +82,7 @@ spec:
           mountPath: "/var/tmp/vault"
       containers:
       - name: serverless
-        image: "registry:5000/serverless:2.2.0"
+        image: "registry:5000/serverless:3.0.0"
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
