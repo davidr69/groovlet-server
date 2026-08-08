@@ -103,7 +103,7 @@ public class GithubService {
 	}
 
 	private String getJsonValidator(ManifestModel manifestModel, String appPath, List<GitTreeItem> items) {
-		String jsonValidator = manifestModel.getJsonMessageValidator();
+		String jsonValidator = manifestModel.getValidator();
 		if(jsonValidator == null) {
 			return null;
 		}

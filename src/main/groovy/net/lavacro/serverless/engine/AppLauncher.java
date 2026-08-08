@@ -71,7 +71,8 @@ public class AppLauncher {
 			}
 
 			String payload = JsonOutput.toJson(message);
-			String validationProblems = JsonUtils.schemaValidator(payload, payload);
+			String schema = WorkflowService.getAppMap().get(appName).getJsonValidator();
+			String validationProblems = JsonUtils.schemaValidator(schema, payload);
 			if(validationProblems == null) {
 				threads.submit(workflowService.doit(appName, message, new HashMap<>()));
 			} else {
