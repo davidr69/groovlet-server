@@ -68,7 +68,7 @@ public class MyYamlLoader {
 		return constructor;
 	}
 
-	private static <T> @NotNull T newObject(Class<T> clazz) {
+	private static <T> T newObject(Class<T> clazz) {
 		try {
 			return clazz.getDeclaredConstructor().newInstance();
 		} catch(NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {

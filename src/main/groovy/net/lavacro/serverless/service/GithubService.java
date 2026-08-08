@@ -35,8 +35,6 @@ public class GithubService {
 		log.info("[{}] Get from github ...", appPath);
 
 		List<GitTreeItem> items = githubIntf.listDir(
-				githubConfig.getToken(),
-				null,
 				githubConfig.getOwner(),
 				githubConfig.getRepo(),
 				appPath,
@@ -83,8 +81,6 @@ public class GithubService {
 	private String getBlob(final String sha) {
 		try {
 			GitBlob blob = githubIntf.getBlob(
-					githubConfig.getToken(),
-					null,
 					githubConfig.getOwner(),
 					githubConfig.getRepo(),
 					sha
@@ -116,7 +112,7 @@ public class GithubService {
 
 		String validatorContent = getBlob(validator.get().getSha());
 		if(validatorContent == null) {
-			log.warn("json validator not found");
+			log.warn("json validator is empty");
 			return null;
 		}
 		return validatorContent;
